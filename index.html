@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>CHANEL Snake Game</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -35,6 +35,20 @@
         <main class="game-container">
             <canvas id="gameCanvas" width="400" height="400"></canvas>
             
+            <!-- Mobile Touch Controls -->
+            <div class="mobile-controls">
+                <div class="control-row">
+                    <button id="upBtn" class="touch-btn" data-direction="up">↑</button>
+                </div>
+                <div class="control-row">
+                    <button id="leftBtn" class="touch-btn" data-direction="left">←</button>
+                    <button id="rightBtn" class="touch-btn" data-direction="right">→</button>
+                </div>
+                <div class="control-row">
+                    <button id="downBtn" class="touch-btn" data-direction="down">↓</button>
+                </div>
+            </div>
+            
             <div class="controls">
                 <div class="control-buttons">
                     <button id="startBtn" class="btn btn-primary">START GAME</button>
@@ -44,7 +58,8 @@
                 
                 <div class="instructions">
                     <h3>INSTRUCTIONS</h3>
-                    <p>Use <strong>Arrow Keys</strong> or <strong>WASD</strong> to control the snake</p>
+                    <p class="desktop-only">Use <strong>Arrow Keys</strong> or <strong>WASD</strong> to control the snake</p>
+                    <p class="mobile-only">Use the <strong>Touch Controls</strong> above to control the snake</p>
                     <p>Eat the diamond to grow and increase your score</p>
                     <p>Avoid hitting the walls or yourself</p>
                 </div>

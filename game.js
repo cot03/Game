@@ -37,9 +37,49 @@ class SnakeGame {
         this.finalScoreElement = document.getElementById('finalScore');
         this.playAgainBtn = document.getElementById('playAgainBtn');
         
+        // Mobile touch controls
+        this.upBtn = document.getElementById('upBtn');
+        this.downBtn = document.getElementById('downBtn');
+        this.leftBtn = document.getElementById('leftBtn');
+        this.rightBtn = document.getElementById('rightBtn');
+        
+        // Touch tracking
+        this.touchStartX = 0;
+        this.touchStartY = 0;
+        this.touchEndX = 0;
+        this.touchEndY = 0;
+        
         this.initializeGame();
         this.setupEventListeners();
         this.updateHighScoreDisplay();
+        this.adjustCanvasForMobile();
+    }
+    
+    adjustCanvasForMobile() {
+        // Adjust canvas size for mobile devices
+        if (window.innerWidth <= 480) {
+            this.canvas.width = 280;
+            this.canvas.height = 280;
+        } else if (window.innerWidth <= 768) {
+            this.canvas.width = 320;
+            this.canvas.height = 320;
+        }
+        
+        // Recalculate tile count based on new canvas size
+        this.tileCount = this.canvas.width / this.gridSize;
+        
+        // Adjust snake position if needed
+        if (this.snake[0].x >= this.tileCount) {
+            this.snake[0].x = Math.floor(this.tileCount / 2);
+        }
+        if (this.snake[0].y >= this.tileCount) {
+            this.snake[0].y = Math.floor(this.tileCount / 2);
+        }
+        
+        // Regenerate food if it's outside the new bounds
+        if (this.food.x >= this.tileCount || this.food.y >= this.tileCount) {
+            this.food = this.generateFood();
+        }
     }
     
     initializeGame() {
@@ -53,8 +93,53 @@ class SnakeGame {
         this.resetBtn.addEventListener('click', () => this.resetGame());
         this.playAgainBtn.addEventListener('click', () => this.playAgain());
         
+        // Mobile touch control buttons
+        this.upBtn.addEventListener('click', () => this.handleTouchControl('up'));
+        this.downBtn.addEventListener('click', () => this.handleTouchControl('down'));
+        this.leftBtn.addEventListener('click', () => this.handleTouchControl('left'));
+        this.rightBtn.addEventListener('click', () => this.handleTouchControl('right'));
+        
+        // Touch controls with haptic feedback
+        this.upBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            this.handleTouchControl('up');
+            this.vibrate();
+        });
+        this.downBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            this.handleTouchControl('down');
+            this.vibrate();
+        });
+        this.leftBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            this.handleTouchControl('left');
+            this.vibrate();
+        });
+        this.rightBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            this.handleTouchControl('right');
+            this.vibrate();
+        });
+        
         // Keyboard controls
         document.addEventListener('keydown', (e) => this.handleKeyPress(e));
+        
+        // Swipe gestures for mobile
+        this.canvas.addEventListener('touchstart', (e) => this.handleTouchStart(e));
+        this.canvas.addEventListener('touchend', (e) => this.handleTouchEnd(e));
+        
+        // Prevent default touch behaviors
+        document.addEventListener('touchstart', (e) => {
+            if (e.target.closest('.touch-btn') || e.target.closest('#gameCanvas')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (e.target.closest('.touch-btn') || e.target.closest('#gameCanvas')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
         
         // Prevent arrow keys from scrolling the page
         document.addEventListener('keydown', (e) => {
@@ -62,6 +147,108 @@ class SnakeGame {
                 e.preventDefault();
             }
         });
+        
+        // Handle orientation changes
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                this.adjustCanvasForMobile();
+                this.drawGame();
+            }, 100);
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            this.adjustCanvasForMobile();
+            this.drawGame();
+        });
+    }
+    
+    vibrate() {
+        // Haptic feedback for mobile devices
+        if (navigator.vibrate) {
+            navigator.vibrate(50);
+        }
+    }
+    
+    handleTouchControl(direction) {
+        if (!this.gameRunning || this.gamePaused) return;
+        
+        let newDx = this.dx;
+        let newDy = this.dy;
+        
+        switch (direction) {
+            case 'up':
+                if (this.dy !== 1) {
+                    newDx = 0;
+                    newDy = -1;
+                }
+                break;
+            case 'down':
+                if (this.dy !== -1) {
+                    newDx = 0;
+                    newDy = 1;
+                }
+                break;
+            case 'left':
+                if (this.dx !== 1) {
+                    newDx = -1;
+                    newDy = 0;
+                }
+                break;
+            case 'right':
+                if (this.dx !== -1) {
+                    newDx = 1;
+                    newDy = 0;
+                }
+                break;
+        }
+        
+        this.nextDx = newDx;
+        this.nextDy = newDy;
+    }
+    
+    handleTouchStart(e) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        this.touchStartX = touch.clientX;
+        this.touchStartY = touch.clientY;
+    }
+    
+    handleTouchEnd(e) {
+        e.preventDefault();
+        if (!this.gameRunning || this.gamePaused) return;
+        
+        const touch = e.changedTouches[0];
+        this.touchEndX = touch.clientX;
+        this.touchEndY = touch.clientY;
+        
+        const deltaX = this.touchEndX - this.touchStartX;
+        const deltaY = this.touchEndY - this.touchStartY;
+        
+        // Minimum swipe distance
+        const minSwipeDistance = 30;
+        
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            // Horizontal swipe
+            if (Math.abs(deltaX) > minSwipeDistance) {
+                if (deltaX > 0) {
+                    this.handleTouchControl('right');
+                } else {
+                    this.handleTouchControl('left');
+                }
+                this.vibrate();
+            }
+        } else {
+            // Vertical swipe
+            if (Math.abs(deltaY) > minSwipeDistance) {
+                if (deltaY > 0) {
+                    this.handleTouchControl('down');
+                } else {
+                    this.handleTouchControl('up');
+                }
+                this.vibrate();
+            }
+        }
     }
     
     handleKeyPress(e) {
@@ -133,13 +320,14 @@ class SnakeGame {
         this.gameRunning = false;
         this.gamePaused = false;
         this.score = 0;
-        this.snake = [{ x: 10, y: 10 }];
+        this.snake = [{ x: Math.floor(this.tileCount / 2), y: Math.floor(this.tileCount / 2) }];
         this.snakeLength = 1;
         this.dx = 0;
         this.dy = 0;
         this.nextDx = 0;
         this.nextDy = 0;
         this.food = this.generateFood();
+        this.gameSpeed = 150; // Reset game speed
         
         this.startBtn.disabled = false;
         this.pauseBtn.disabled = true;
@@ -194,6 +382,7 @@ class SnakeGame {
             this.snakeLength++;
             this.food = this.generateFood();
             this.updateScoreDisplay();
+            this.vibrate(); // Haptic feedback for eating food
             
             // Increase game speed slightly
             if (this.gameSpeed > 50) {
@@ -330,6 +519,11 @@ class SnakeGame {
     gameOver() {
         this.gameRunning = false;
         this.gamePaused = false;
+        
+        // Haptic feedback for game over
+        if (navigator.vibrate) {
+            navigator.vibrate([100, 50, 100]);
+        }
         
         // Update high score if necessary
         if (this.score > this.highScore) {
