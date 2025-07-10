@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>CHANEL Snake Game</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <div class="chanel-logo">
+                    <span class="logo-text">CHANEL</span>
+                    <div class="logo-symbol">⚜</div>
+                </div>
+            </div>
+            
+            <h1 class="title">SNAKE GAME</h1>
+            <div class="subtitle">PARIS</div>
+            
+            <div class="score-board">
+                <div class="score-item">
+                    <span class="label">Score</span>
+                    <span id="score" class="value">0</span>
+                </div>
+                <div class="score-item">
+                    <span class="label">High Score</span>
+                    <span id="highScore" class="value">0</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="game-container">
+            <canvas id="gameCanvas" width="400" height="400"></canvas>
+            
+            <!-- Mobile Touch Controls -->
+            <div class="mobile-controls">
+                <div class="control-row">
+                    <button id="upBtn" class="touch-btn" data-direction="up">↑</button>
+                </div>
+                <div class="control-row">
+                    <button id="leftBtn" class="touch-btn" data-direction="left">←</button>
+                    <button id="rightBtn" class="touch-btn" data-direction="right">→</button>
+                </div>
+                <div class="control-row">
+                    <button id="downBtn" class="touch-btn" data-direction="down">↓</button>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <div class="control-buttons">
+                    <button id="startBtn" class="btn btn-primary">START GAME</button>
+                    <button id="pauseBtn" class="btn btn-secondary" disabled>PAUSE</button>
+                    <button id="resetBtn" class="btn btn-danger">RESET</button>
+                </div>
+                
+                <div class="instructions">
+                    <h3>INSTRUCTIONS</h3>
+                    <p class="desktop-only">Use <strong>Arrow Keys</strong> or <strong>WASD</strong> to control the snake</p>
+                    <p class="mobile-only">Use the <strong>Touch Controls</strong> above to control the snake</p>
+                    <p>Eat the diamond to grow and increase your score</p>
+                    <p>Avoid hitting the walls or yourself</p>
+                </div>
+            </div>
+        </main>
+
+        <div id="gameOverModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-logo">CHANEL</div>
+                <h2>GAME OVER</h2>
+                <p>Your final score: <span id="finalScore">0</span></p>
+                <button id="playAgainBtn" class="btn btn-primary">PLAY AGAIN</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html> 
